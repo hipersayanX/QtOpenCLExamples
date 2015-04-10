@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>edges.cl</file>
+        <file>image.jpg</file>
+    </qresource>
+</RCC>

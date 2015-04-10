@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>parsum.cl</file>
+    </qresource>
+</RCC>
