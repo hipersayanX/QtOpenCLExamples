@@ -17,18 +17,5 @@
 # Email   : hipersayan DOT x AT gmail DOT com
 # Web-Site: http://github.com/hipersayanX/QtOpenCLExamples
 
-exists(commons.pri): include(commons.pri)
-else: exists(../commons.pri): include(../commons.pri)
-
-LIBS += -lOpenCL
-
-QT += core
-QT -= gui
-
-TARGET = cltest
-CONFIG += console
-CONFIG -= app_bundle
-
-TEMPLATE = app
-
-SOURCES += main.cpp
+win32: INCLUDEPATH += "C:\Program Files\AMD APP SDK\2.9-1\include"
+win32: LIBS += -L"C:\Program Files\AMD APP SDK\2.9-1\lib\x86"

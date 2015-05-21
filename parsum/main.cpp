@@ -102,16 +102,16 @@ int main(int argc, char *argv[])
         inputNumbers[i] = i % 128;
 
     cl::Buffer inputBuffer(context,
-                           inputNumbers.begin(),
-                           inputNumbers.end(),
-                           false);
+                           CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
+                           sizeof(cl_int) * inputNumbers.size(),
+                           inputNumbers.data());
 
     cl::Buffer outputBuffer(context,
-                            outputNumbers.begin(),
-                            outputNumbers.end(),
-                            false);
+                            CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
+                            sizeof(cl_int) * outputNumbers.size(),
+                            outputNumbers.data());
 
-    cl::CommandQueue commandQueue(context);
+    cl::CommandQueue commandQueue(context, devices[0]);
 
     // Obtain a reference to the kernels
     cl::make_kernel<cl::Buffer &, cl::Buffer &, int> parsum(program, "parsum");
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
     int range;
 
     // Parallel sum
-    for (;;) {
+    forever {
         calculateNDRange(inputSize, groupSize,
                          &range, &groupSize, &oSize);
 
@@ -155,10 +155,11 @@ int main(int argc, char *argv[])
     }
 
     // Retrieve buffer
-    cl::copy(commandQueue,
-             outputBuffer,
-             outputNumbers.begin(),
-             outputNumbers.end());
+    commandQueue.enqueueReadBuffer(outputBuffer,
+                                   CL_TRUE,
+                                   0,
+                                   sizeof(cl_int) * outputNumbers.size(),
+                                   outputNumbers.data());
 
     qDebug() << outputNumbers[0] << eTimer.elapsed();
 

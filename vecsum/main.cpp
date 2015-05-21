@@ -102,21 +102,21 @@ int main(int argc, char *argv[])
     }
 
     cl::Buffer aBuffer(context,
-                       aNumbers.begin(),
-                       aNumbers.end(),
-                       false);
+                       CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
+                       sizeof(cl_float) * aNumbers.size(),
+                       aNumbers.data());
 
     cl::Buffer bBuffer(context,
-                        bNumbers.begin(),
-                        bNumbers.end(),
-                        false);
+                       CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
+                       sizeof(cl_float) * bNumbers.size(),
+                       bNumbers.data());
 
     cl::Buffer cBuffer(context,
-                        cNumbers.begin(),
-                        cNumbers.end(),
-                        false);
+                       CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
+                       sizeof(cl_float) * cNumbers.size(),
+                       cNumbers.data());
 
-    cl::CommandQueue commandQueue(context);
+    cl::CommandQueue commandQueue(context, devices[0]);
 
     // Obtain a reference to the kernels
     cl::make_kernel<float, cl::Buffer &, cl::Buffer &, cl::Buffer &, int> vecsum(program, "vecsum");
@@ -148,10 +148,11 @@ int main(int argc, char *argv[])
            2.0, aBuffer, bBuffer, cBuffer, NNUMBERS);
 
     // Retrieve buffer
-    cl::copy(commandQueue,
-             cBuffer,
-             cNumbers.begin(),
-             cNumbers.end());
+    commandQueue.enqueueReadBuffer(cBuffer,
+                                   CL_TRUE,
+                                   0,
+                                   sizeof(cl_float) * cNumbers.size(),
+                                   cNumbers.data());
 
     qDebug() << eTimer.elapsed();
 //    qDebug() << cNumbers;

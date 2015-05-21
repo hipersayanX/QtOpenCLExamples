@@ -17,6 +17,9 @@
 # Email   : hipersayan DOT x AT gmail DOT com
 # Web-Site: http://github.com/hipersayanX/QtOpenCLExamples
 
+exists(commons.pri): include(commons.pri)
+else: exists(../commons.pri): include(../commons.pri)
+
 LIBS += -lOpenCL
 
 QT += core gui

@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
     QVector<cl_uint3> integral(videoArea);
     QVector<cl_ulong3> integral2(videoArea);
 
-    cl::CommandQueue commandQueue(context);
+    cl::CommandQueue commandQueue(context, devices[0]);
 
     // Obtain a reference to the kernels
     cl::make_kernel<cl::Image2D &, cl::Buffer &, cl::Buffer &> horizontalIntegral(program, "horizontalIntegral");
@@ -213,14 +213,14 @@ int main(int argc, char *argv[])
                             &err);
 
     cl::Buffer integralBuffer(context,
-                              integral.begin(),
-                              integral.end(),
-                              false);
+                              CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
+                              sizeof(cl_uint3) * integral.size(),
+                              integral.data());
 
     cl::Buffer integralBuffer2(context,
-                               integral2.begin(),
-                               integral2.end(),
-                               false);
+                              CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR,
+                              sizeof(cl_ulong3) * integral2.size(),
+                              integral2.data());
 
     eTimer.restart();
 
@@ -249,15 +249,17 @@ int main(int argc, char *argv[])
                      integralBuffer, integralBuffer2);
 
     // Retrieve buffers
-    cl::copy(commandQueue,
-             integralBuffer,
-             integral.begin(),
-             integral.end());
+    commandQueue.enqueueReadBuffer(integralBuffer,
+                                   CL_TRUE,
+                                   0,
+                                   sizeof(cl_uint3) * integral.size(),
+                                   integral.data());
 
-    cl::copy(commandQueue,
-             integralBuffer2,
-             integral2.begin(),
-             integral2.end());
+    commandQueue.enqueueReadBuffer(integralBuffer2,
+                                   CL_TRUE,
+                                   0,
+                                   sizeof(cl_ulong3) * integral2.size(),
+                                   integral2.data());
 
     qDebug() << "paralell"
              << "R" << integral.last().s0

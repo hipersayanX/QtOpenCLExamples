@@ -107,19 +107,10 @@ int main(int argc, char *argv[])
 
     QImage imageOut(imageIn.size(), imageIn.format());
 
-    cl::CommandQueue commandQueue(context);
+    cl::CommandQueue commandQueue(context, devices[0]);
 
     // Obtain a reference to the kernel
     cl::make_kernel<cl::Image2D &, cl::Image2D &> edges(program, "edges");
-
-    // Create looup table
-    int tableLen = 2 * int(pow(4 * 255, 2)) + 1;
-    int t_sqrt[tableLen];
-
-    for (int i = 0; i < tableLen; i++) {
-        int value = sqrt(i);
-        t_sqrt[i] = qBound(0, value, 255);
-    }
 
     QElapsedTimer eTimer;
     eTimer.start();
@@ -157,7 +148,8 @@ int main(int argc, char *argv[])
                       - 2 * qRed(iLine[x_m])
                       - qRed(iLine_p1[x_m]);
 
-            int gray = t_sqrt[grayX * grayX + grayY * grayY];
+            int gray = sqrt(grayX * grayX + grayY * grayY);
+            gray = qBound(0, gray, 255);
 
             oLine[x] = qRgb(gray, gray, gray);
         }
